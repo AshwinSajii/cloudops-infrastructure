@@ -1,0 +1,19 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Gallery</title>
+    <link rel="stylesheet" href="/static/style.css">
+</head>
+<body>
+<h2>Your Uploaded Files</h2>
+{% for file in files %}
+<div class="file-item">
+    <img src="{{ file }}" width="200"><br>
+    {{ file }}
+</div>
+{% endfor %}
+<br>
+<a href="/upload">Upload More</a> |
+<a href="/logout">Logout</a>
+</body>
+</html>

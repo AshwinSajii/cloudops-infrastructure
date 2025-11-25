@@ -1,0 +1,20 @@
+# Python
+venv/
+__pycache__/
+*.pyc
+
+# MinIO storage
+minio-data/
+
+# Backups
+backups/
+*.tar.gz
+
+# Logs
+logs/
+
+# Systemd
+*.service
+
+# Secrets
+*.env
