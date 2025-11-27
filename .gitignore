@@ -18,3 +18,7 @@ logs/
 
 # Secrets
 *.env
+automation/backup.sh
+automation/minio_monitor.sh
+automation/backup.sh
+automation/minio_monitor.sh
