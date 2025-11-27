@@ -1,77 +1,127 @@
-# 🌩️ CloudOps Infrastructure Platform  
-**A Production-Style Cloud Operations Project | Load Balancing • Reverse Proxies • Monitoring • Automation • Backups • Linux Services**
+# 🌩️ **CloudOps Infrastructure Platform**
+
+**A Production-Style Cloud Operations Project | Load Balancing • Reverse Proxies • Monitoring • Automation • Backups • MinIO • Prometheus**
 
 ![Architecture](docs/cloudops-architecture.png)
 
 ---
 
-## 📘 Table of Contents
-- [Overview](#overview)
-- [Core Architecture](#core-architecture)
-- [Tech Stack](#tech-stack)
-- [Features](#features)
-- [Architecture Diagram](#architecture-diagram)
-- [Service Breakdown](#service-breakdown)
-- [Automation](#automation)
-- [Security Enhancements](#security-enhancements)
-- [Deployment Guide](#deployment-guide)
-- [Repository Structure](#repository-structure)
-- [What This Project Demonstrates](#what-this-project-demonstrates)
-- [Future Enhancements](#future-enhancements)
+# 📘 Table of Contents
+
+* [Overview](#overview)
+* [Core Architecture](#core-architecture)
+* [Tech Stack](#tech-stack)
+* [Features](#features)
+* [Architecture Diagram](#architecture-diagram)
+* [Service Breakdown](#service-breakdown)
+* [Automation](#automation)
+* [Monitoring & Observability](#monitoring--observability)
+* [Security Enhancements](#security-enhancements)
+* [Deployment Guide](#deployment-guide)
+* [Repository Structure](#repository-structure)
+* [What This Project Demonstrates](#what-this-project-demonstrates)
+* [Future Enhancements](#future-enhancements)
 
 ---
 
 # 🚀 Overview
 
-This project is a **fully functional Cloud Operations Infrastructure**, built to simulate a real-world production environment.  
-It includes:
+This CloudOps Infrastructure project simulates a **real production environment**, including:
 
-- A load balancer  
-- Reverse proxies  
-- Multiple backend services  
-- Monitoring & observability  
-- Automated backups to MinIO  
-- Alerting  
-- Secure environment management  
-- Linux systemd orchestration  
-- S3 object storage  
-- Infrastructure documentation  
+* Load balancer
+* Reverse proxies
+* Backend services
+* Real automated backups with integrity checks
+* MinIO S3 storage
+* Prometheus monitoring
+* Node Exporter metrics
+* Real-time Discord alerting
+* Cron automation
+* Linux systemd service management
+* Disaster-recovery tooling
 
-This repository is intentionally designed to demonstrate **Cloud, DevOps, SysAdmin, and SRE skills**.
+This project demonstrates **DevOps, SRE, SysAdmin, and Cloud Engineering** skills.
 
 ---
 
 # 🧱 Core Architecture
 
-| Layer | Component | Description |
-|-------|-----------|-------------|
-| **Load Balancing** | NGINX (8080) | Distributes traffic between web1 and web2 |
-| **Reverse Proxies** | NGINX (8081,8082) | Forward traffic to Flask apps |
-| **Application Layer** | Flask apps (5001, 5002) | systemd-managed Python backend services |
-| **Object Storage** | MinIO (9000/9001) | S3-compatible storage for uploads & backups |
-| **Monitoring** | Prometheus (9090), Node Exporter (9100) | Full metrics collection & dashboards |
-| **Automation** | Cron + Bash | Backup, restore, cleanup, alerts |
+| Layer                 | Component                    | Description                           |
+| --------------------- | ---------------------------- | ------------------------------------- |
+| **Load Balancing**    | NGINX                        | Distributes traffic across Flask apps |
+| **Reverse Proxies**   | NGINX proxies                | Incoming traffic isolation & routing  |
+| **Application Layer** | Flask apps                   | Python backend services (systemd)     |
+| **Object Storage**    | MinIO S3                     | Backup & file storage                 |
+| **Monitoring**        | Prometheus + Node Exporter   | Metrics & alerts                      |
+| **Automation**        | Bash + Cron + Discord Alerts | Backups, monitoring, cleanup          |
 
 ---
 
 # 🛠️ Tech Stack
 
-### **Infrastructure & Services**
-- Ubuntu Linux  
-- systemd services  
-- NGINX load balancer + reverse proxy  
-- Python Flask apps  
-- MinIO S3 object storage (Docker)
+### **Infrastructure**
 
-### **Monitoring**
-- Prometheus  
-- Node Exporter  
-- Grafana Integration Ready  
+* Ubuntu Linux
+* systemd services
+* Bash automation scripts
+* NGINX load balancer + reverse proxy
+* MinIO S3 storage (Docker)
 
-### **Automation**
-- Cron jobs  
-- Bash scripting  
-- Discord webhook alerts  
+### **Monitoring & Alerts**
+
+* Prometheus
+* Node Exporter (textfile collector enabled)
+* Custom Prometheus metrics
+* Discord webhook alerts
+
+### **Apps**
+
+* Python Flask microservices
+* Two independent backend apps
+* Reverse-proxied with NGINX
+
+---
+
+# 💾 Features (Updated)
+
+## ✔ **1. Automated Backup System**
+
+Your backup automation now includes:
+
+* Full backup of apps, configs, monitoring, and LB
+* TAR archive creation
+* SHA256 checksum generation
+* Upload to MinIO
+* Local vs remote **integrity verification**
+* Automatic cleanup of temp directories
+* Discord alerts:
+
+  * ✔ Success
+  * ❌ Failure (MinIO, TAR, missing files, etc.)
+
+## ✔ **2. Backup Metrics (Prometheus)**
+
+The system updates:
+
+```
+cloudops_last_backup_timestamp
+cloudops_last_backup_size_bytes
+cloudops_last_backup_integrity_ok
+cloudops_minio_used_percent
+```
+
+These are available through Node Exporter → Prometheus.
+
+---
+
+# 📦 MinIO Storage Monitoring (New Today)
+
+minio_monitor.sh:
+
+* Computes MinIO disk usage %
+* Sends Discord alerts if usage too high
+* Writes metric → Prometheus textfile collector
+* Cron-driven monitoring (every 6h)
 
 ---
 
@@ -79,174 +129,177 @@ This repository is intentionally designed to demonstrate **Cloud, DevOps, SysAdm
 
 ```mermaid
 flowchart TD
-    LB[NGINX Load Balancer<br>Port 8080]
-    RP1[NGINX Reverse Proxy - Web1<br>8081]
-    RP2[NGINX Reverse Proxy - Web2<br>8082]
-    APP1[Flask Web1 App<br>5001]
-    APP2[Flask Web2 App<br>5002]
-    MINIO[(MinIO S3 Storage<br>9000/9001)]
+    LB[NGINX Load Balancer<br>8080]
+    RP1[Reverse Proxy - Web1<br>8081]
+    RP2[Reverse Proxy - Web2<br>8082]
+    APP1[Flask Web1<br>5001]
+    APP2[Flask Web2<br>5002]
+    MINIO[(MinIO<br>9000/9001)]
+    BACKUP[Backup Automation]
+    MON[MinIO Monitor]
     PROM[Prometheus<br>9090]
     NODE[Node Exporter<br>9100]
+    DISCORD[(Discord Alerts)]
 
     LB --> RP1 --> APP1
     LB --> RP2 --> APP2
     APP1 --> MINIO
     APP2 --> MINIO
+
+    BACKUP --> MINIO
+    BACKUP --> DISCORD
+    BACKUP --> NODE
+
+    MON --> DISCORD
+    MON --> NODE
     NODE --> PROM
-````
+```
 
 ---
 
 # 🧩 Service Breakdown
 
-### **1️⃣ NGINX Load Balancer**
+## **1️⃣ NGINX Load Balancer**
 
-* Routes traffic from `localhost:8080` → web1 & web2
-* Round-robin distribution
-* Resilience for testing service failover
+* Round-robin
+* Routes to reverse proxies
 
----
+## **2️⃣ Reverse Proxies**
 
-### **2️⃣ Reverse Proxies (web1 & web2)**
-
-Each proxy:
-
-* Accepts on 8081/8082
+* Restricts methods
 * Forwards to Flask apps
-* Restricts allowed HTTP methods
-* Isolates the application layer from direct traffic
+* Adds security layer
 
----
+## **3️⃣ Flask Applications**
 
-### **3️⃣ Flask Application Services**
+* User upload system
+* Gallery
+* Login system
+* Health endpoints
+* Runs under systemd
 
-Each app:
+## **4️⃣ MinIO S3 Storage**
 
-* Runs under its own `systemd` service
-* Exposes:
-
-  * `/info`
-  * `/upload`
-  * `/status`
-* Logs to `~/cloudops/logs/`
-
----
-
-### **4️⃣ MinIO S3 Storage**
-
-* Stores **uploads** + **backups**
-* Managed using Docker
-* Access via:
-
-  * UI → `localhost:9001`
-  * API → `localhost:9000`
-
-Buckets created:
+Buckets:
 
 * `uploads`
 * `backups`
 
----
+Used for:
 
-### **5️⃣ Monitoring Stack**
+* App uploads
+* Backup storage
 
-#### Node Exporter
+## **5️⃣ Prometheus Monitoring Stack**
 
-* Runs on port 9100
-* Collects Linux metrics
-
-#### Prometheus
-
-* Scrapes:
-
-  * Node Exporter
-  * Flask app endpoints
-* UI available at `localhost:9090`
+* Node Exporter metric collector
+* Prometheus scraping custom metrics
+* Dashboards ready for Grafana
 
 ---
 
-# 🤖 Automation
+# 🤖 Automation (Updated)
 
 ### **Backup Script**
 
-* Tar + gzip full web app directory
-* Store in `/backups` and MinIO
-* Logs all runs
-* Creates Discord alert on failure
+* TAR + gzip
+* SHA256 checksum
+* Upload to MinIO
+* Verify integrity
+* Discord alert
+* Prometheus metric update
+
+### **MinIO Monitor Script**
+
+* Checks used %
+* Alerts if > threshold
+* Updates Prometheus metric
+* Cron-scheduled
 
 ### **Cleanup Script**
 
-* Removes old backups > 30 days
+* Deletes old backups (> 30 days)
 
 ### **Restore Script**
 
 * Pull backup from MinIO
-* Extract and fully restore app directory
+* Extract
+* Restore directories
 
-### **Cron schedules**
+---
 
-| Task              | Schedule       |
-| ----------------- | -------------- |
-| Automated backup  | Every 12 hours |
-| Cleanup           | Daily          |
-| Prometheus scrape | 15s interval   |
+# 📈 Monitoring & Observability (New Enhancements)
+
+Node Exporter textfile collector enabled:
+
+Custom metrics available at:
+
+```
+/var/lib/node_exporter/textfile_collector/cloudops.prom
+```
+
+Grafana-ready dashboards possible.
 
 ---
 
 # 🔐 Security Enhancements
 
-* systemd EnvironmentFile for secrets
-* Restricted file permissions (`700`)
-* NGINX method filtering
-* TLS-ready structure
-* Removal of plaintext passwords
-* Discord alerts instead of email (secure)
+* Webhook secrets **NOT** stored in Git
+* Sensitive scripts added to `.gitignore`
+* Principle of least privilege (directories + services)
+* NGINX method restrictions
+* Local-only MinIO deployment
+* systemd sandboxes services
 
 ---
 
 # 🚀 Deployment Guide
 
-### Clone:
+### Clone repo:
 
 ```bash
 git clone https://github.com/AshwinSajii/cloudops-infrastructure.git
 cd cloudops-infrastructure
 ```
 
-### Start services:
+### Start core services:
 
-```bash
-sudo systemctl start web1 web2 nginx prometheus node_exporter
+```
+sudo systemctl start web1 web2 nginx node_exporter prometheus
 ```
 
-### View logs:
+### Run backup manually:
 
-```bash
-journalctl -u web1 -f
-journalctl -u web2 -f
+```
+~/cloudops/automation/backup.sh
 ```
 
-### Verify LB:
+### Monitor MinIO storage:
 
-Visit → **[http://localhost:8080](http://localhost:8080)**
+```
+~/cloudops/automation/minio_monitor.sh
+```
 
 ---
 
-# 📂 Repository Structure
+# 📂 Repository Structure (Updated)
 
 ```
 cloudops/
 │── automation/
 │   ├── backup.sh
+│   ├── minio_monitor.sh
 │   ├── restore.sh
-│   └── cleanup.sh
+│   └── cleanup_backups.sh
 │
-│── web1/
-│── web2/
+│── apps/
+│   ├── web1/
+│   └── web2/
+│
 │── lb/
-│── minio-data/
 │── prometheus/
 │── node_exporter/
+│── backups/
 │── logs/
 │── docs/
 │   └── cloudops-architecture.png
@@ -258,40 +311,46 @@ cloudops/
 
 # 🏆 What This Project Demonstrates
 
-### **Cloud & DevOps Skills**
+### **Cloud Engineering**
 
-* Systemd orchestration
-* Linux service lifecycle
-* Reverse proxying & LB engineering
-* Observability pipeline
-* S3 storage architecture
-* Disaster recovery workflows
+* S3 storage
+* Reverse proxies
+* Load balancing
+* Network routing
 
-### **SRE Skills**
+### **DevOps**
 
+* Automation
+* systemd services
+* Infrastructure layout
+* Observability stack
+
+### **SRE**
+
+* Backup + restore reliability
 * Monitoring
 * Alerting
-* Automation
-* Backup/restore design
-* Failure simulation & resilience
+* Integrity verification
+* Disaster recovery
 
 ---
 
 # 🚧 Future Enhancements
 
-* Add CI/CD pipeline
-* Add Kubernetes version
-* Add Terraform IaC provisioning
-* Deploy publicly on a cloud provider
-* Add HTTPS with Certbot
+* Dockerize entire platform
+* Kubernetes migration
+* Add TLS (Certbot)
+* CI/CD pipeline (GitHub Actions)
+* Terraform IaC
+* Grafana dashboards
 
 ---
 
 # 👨‍💻 Author
 
 **Ashwin Saji**
-Cloud | DevOps | SRE Enthusiast
+Cloud | DevOps | SRE Engineer
 
 
-If you want a **project video guide**, **resume bullet points**, or **LinkedIn post**, just tell me!
-```
+
+Just tell me!
