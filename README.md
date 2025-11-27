@@ -351,6 +351,3 @@ cloudops/
 **Ashwin Saji**
 Cloud | DevOps | SRE Engineer
 
-
-
-Just tell me!
