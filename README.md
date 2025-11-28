@@ -1,353 +1,318 @@
-# 🌩️ **CloudOps Infrastructure Platform**
+# 🌐 CloudOps Infrastructure
 
-**A Production-Style Cloud Operations Project | Load Balancing • Reverse Proxies • Monitoring • Automation • Backups • MinIO • Prometheus**
+A full infrastructure stack including:
 
-![Architecture](docs/cloudops-architecture.png)
+- **Flask Web Applications (Web1 & Web2)**
+- **MinIO Object Storage**
+- **Automated Backups to MinIO**
+- **Automated Cleanup (30 days retention)**
+- **Automated Restore Utility**
+- **Nginx Load Balancer**
+- **Prometheus + Node Exporter Monitoring**
+- **Systemd Services & Timers**
+- **Zero-downtime deployment**
 
----
-
-# 📘 Table of Contents
-
-* [Overview](#overview)
-* [Core Architecture](#core-architecture)
-* [Tech Stack](#tech-stack)
-* [Features](#features)
-* [Architecture Diagram](#architecture-diagram)
-* [Service Breakdown](#service-breakdown)
-* [Automation](#automation)
-* [Monitoring & Observability](#monitoring--observability)
-* [Security Enhancements](#security-enhancements)
-* [Deployment Guide](#deployment-guide)
-* [Repository Structure](#repository-structure)
-* [What This Project Demonstrates](#what-this-project-demonstrates)
-* [Future Enhancements](#future-enhancements)
+This project is designed for reliable, fully automated infrastructure running locally or on a VM.
 
 ---
 
-# 🚀 Overview
-
-This CloudOps Infrastructure project simulates a **real production environment**, including:
-
-* Load balancer
-* Reverse proxies
-* Backend services
-* Real automated backups with integrity checks
-* MinIO S3 storage
-* Prometheus monitoring
-* Node Exporter metrics
-* Real-time Discord alerting
-* Cron automation
-* Linux systemd service management
-* Disaster-recovery tooling
-
-This project demonstrates **DevOps, SRE, SysAdmin, and Cloud Engineering** skills.
-
----
-
-# 🧱 Core Architecture
-
-| Layer                 | Component                    | Description                           |
-| --------------------- | ---------------------------- | ------------------------------------- |
-| **Load Balancing**    | NGINX                        | Distributes traffic across Flask apps |
-| **Reverse Proxies**   | NGINX proxies                | Incoming traffic isolation & routing  |
-| **Application Layer** | Flask apps                   | Python backend services (systemd)     |
-| **Object Storage**    | MinIO S3                     | Backup & file storage                 |
-| **Monitoring**        | Prometheus + Node Exporter   | Metrics & alerts                      |
-| **Automation**        | Bash + Cron + Discord Alerts | Backups, monitoring, cleanup          |
-
----
-
-# 🛠️ Tech Stack
-
-### **Infrastructure**
-
-* Ubuntu Linux
-* systemd services
-* Bash automation scripts
-* NGINX load balancer + reverse proxy
-* MinIO S3 storage (Docker)
-
-### **Monitoring & Alerts**
-
-* Prometheus
-* Node Exporter (textfile collector enabled)
-* Custom Prometheus metrics
-* Discord webhook alerts
-
-### **Apps**
-
-* Python Flask microservices
-* Two independent backend apps
-* Reverse-proxied with NGINX
-
----
-
-# 💾 Features (Updated)
-
-## ✔ **1. Automated Backup System**
-
-Your backup automation now includes:
-
-* Full backup of apps, configs, monitoring, and LB
-* TAR archive creation
-* SHA256 checksum generation
-* Upload to MinIO
-* Local vs remote **integrity verification**
-* Automatic cleanup of temp directories
-* Discord alerts:
-
-  * ✔ Success
-  * ❌ Failure (MinIO, TAR, missing files, etc.)
-
-## ✔ **2. Backup Metrics (Prometheus)**
-
-The system updates:
+# 📁 Project Structure
 
 ```
-cloudops_last_backup_timestamp
-cloudops_last_backup_size_bytes
-cloudops_last_backup_integrity_ok
-cloudops_minio_used_percent
-```
 
-These are available through Node Exporter → Prometheus.
+cloudops/
+├── automation/         # Backup, cleanup, restore, notifications
+├── backups/            # Local fallback backups
+├── lb/                 # Nginx load balancer config
+├── logs/               # App + system logs
+├── minio-data/         # MinIO storage (excluded from Git)
+├── web1/               # Flask app 1
+├── web2/               # Flask app 2
+├── prometheus/         # Prometheus config
+├── node_exporter/      # Node exporter binary folder
+├── scripts/            # Deployment scripts (optional)
+├── venv/               # Python virtual environment
+└── README.md
 
----
-
-# 📦 MinIO Storage Monitoring (New Today)
-
-minio_monitor.sh:
-
-* Computes MinIO disk usage %
-* Sends Discord alerts if usage too high
-* Writes metric → Prometheus textfile collector
-* Cron-driven monitoring (every 6h)
+````
 
 ---
 
-# 🖼 Architecture Diagram (Textual)
+# 🚀 Deployment Setup
 
-```mermaid
-flowchart TD
-    LB[NGINX Load Balancer<br>8080]
-    RP1[Reverse Proxy - Web1<br>8081]
-    RP2[Reverse Proxy - Web2<br>8082]
-    APP1[Flask Web1<br>5001]
-    APP2[Flask Web2<br>5002]
-    MINIO[(MinIO<br>9000/9001)]
-    BACKUP[Backup Automation]
-    MON[MinIO Monitor]
-    PROM[Prometheus<br>9090]
-    NODE[Node Exporter<br>9100]
-    DISCORD[(Discord Alerts)]
-
-    LB --> RP1 --> APP1
-    LB --> RP2 --> APP2
-    APP1 --> MINIO
-    APP2 --> MINIO
-
-    BACKUP --> MINIO
-    BACKUP --> DISCORD
-    BACKUP --> NODE
-
-    MON --> DISCORD
-    MON --> NODE
-    NODE --> PROM
-```
-
----
-
-# 🧩 Service Breakdown
-
-## **1️⃣ NGINX Load Balancer**
-
-* Round-robin
-* Routes to reverse proxies
-
-## **2️⃣ Reverse Proxies**
-
-* Restricts methods
-* Forwards to Flask apps
-* Adds security layer
-
-## **3️⃣ Flask Applications**
-
-* User upload system
-* Gallery
-* Login system
-* Health endpoints
-* Runs under systemd
-
-## **4️⃣ MinIO S3 Storage**
-
-Buckets:
-
-* `uploads`
-* `backups`
-
-Used for:
-
-* App uploads
-* Backup storage
-
-## **5️⃣ Prometheus Monitoring Stack**
-
-* Node Exporter metric collector
-* Prometheus scraping custom metrics
-* Dashboards ready for Grafana
-
----
-
-# 🤖 Automation (Updated)
-
-### **Backup Script**
-
-* TAR + gzip
-* SHA256 checksum
-* Upload to MinIO
-* Verify integrity
-* Discord alert
-* Prometheus metric update
-
-### **MinIO Monitor Script**
-
-* Checks used %
-* Alerts if > threshold
-* Updates Prometheus metric
-* Cron-scheduled
-
-### **Cleanup Script**
-
-* Deletes old backups (> 30 days)
-
-### **Restore Script**
-
-* Pull backup from MinIO
-* Extract
-* Restore directories
-
----
-
-# 📈 Monitoring & Observability (New Enhancements)
-
-Node Exporter textfile collector enabled:
-
-Custom metrics available at:
-
-```
-/var/lib/node_exporter/textfile_collector/cloudops.prom
-```
-
-Grafana-ready dashboards possible.
-
----
-
-# 🔐 Security Enhancements
-
-* Webhook secrets **NOT** stored in Git
-* Sensitive scripts added to `.gitignore`
-* Principle of least privilege (directories + services)
-* NGINX method restrictions
-* Local-only MinIO deployment
-* systemd sandboxes services
-
----
-
-# 🚀 Deployment Guide
-
-### Clone repo:
+## 1️⃣ Clone the repo
 
 ```bash
-git clone https://github.com/AshwinSajii/cloudops-infrastructure.git
-cd cloudops-infrastructure
+git clone https://github.com/<your-username>/cloudops . 
+````
+
+## 2️⃣ Create Python virtual environment
+
+```bash
+python3 -m venv venv
+source venv/bin/activate
+pip install flask boto3
 ```
 
-### Start core services:
+---
 
+# 🌐 Web Apps (Web1 & Web2)
+
+Two Flask apps:
+
+* Web1 → `127.0.0.1:5001`
+* Web2 → `127.0.0.1:5000`
+
+Both apps upload images to **MinIO** and display a gallery.
+
+Start manually:
+
+```bash
+python web1/app/app.py
+python web2/app/app.py
 ```
-sudo systemctl start web1 web2 nginx node_exporter prometheus
+
+Or via systemd:
+
+```bash
+sudo systemctl start web1
+sudo systemctl start web2
 ```
+
+---
+
+# 💾 MinIO (Object Storage)
+
+Start MinIO:
+
+```bash
+docker run -d \
+  --name minio \
+  -p 9000:9000 \
+  -p 9001:9001 \
+  -v ~/cloudops/minio-data:/data \
+  -e MINIO_ROOT_USER=minioadmin \
+  -e MINIO_ROOT_PASSWORD=minioadmin \
+  quay.io/minio/minio server /data --console-address ":9001"
+```
+
+Create uploads bucket:
+
+```bash
+mc alias set local http://localhost:9000 minioadmin minioadmin
+mc mb local/uploads
+```
+
+---
+
+# 📦 Automated Backups
+
+Backups run daily at **midnight** using systemd.
+
+### Backup script:
+
+`automation/backup.py`
+
+Creates:
+
+* **App code backup**
+* **Uploads backup**
+* **Uploads both to MinIO**
+* Logs success/failure
+* Optional Discord notifications
 
 ### Run backup manually:
 
-```
-~/cloudops/automation/backup.sh
-```
-
-### Monitor MinIO storage:
-
-```
-~/cloudops/automation/minio_monitor.sh
+```bash
+/home/ashwin/cloudops/venv/bin/python3 automation/backup.py
 ```
 
 ---
 
-# 📂 Repository Structure (Updated)
+# 🔁 Automated Cleanup
 
+Cleans up:
+
+* Local backups older than 30 days
+* MinIO backups older than retention
+* Deletes old logs
+
+Script:
+
+`automation/cleanup.py`
+
+Timer: **00:30 AM daily**
+
+---
+
+# ♻️ Restore Utility
+
+Quickly restore:
+
+* App code
+* Uploaded files
+* Previous snapshots
+
+Command:
+
+```bash
+python3 automation/restore.py <backup_filename>
 ```
-cloudops/
-│── automation/
-│   ├── backup.sh
-│   ├── minio_monitor.sh
-│   ├── restore.sh
-│   └── cleanup_backups.sh
-│
-│── apps/
-│   ├── web1/
-│   └── web2/
-│
-│── lb/
-│── prometheus/
-│── node_exporter/
-│── backups/
-│── logs/
-│── docs/
-│   └── cloudops-architecture.png
-│
-└── README.md
+
+---
+
+# 📡 Prometheus Monitoring
+
+### Start Prometheus
+
+```bash
+sudo systemctl start prometheus
+```
+
+Prometheus UI:
+👉 [http://localhost:9090/](http://localhost:9090/)
+
+### Prometheus config:
+
+`prometheus/prometheus.yml`
+
+Monitors:
+
+* Web1
+* Web2
+* Node exporter
+* Backup status (optional)
+
+---
+
+# 📊 Node Exporter
+
+Collects server metrics.
+
+Start:
+
+```bash
+sudo systemctl start node_exporter
+```
+
+Metrics at:
+
+👉 [http://localhost:9100/metrics](http://localhost:9100/metrics)
+
+---
+
+# 🔀 Nginx Load Balancer
+
+Nginx forwards:
+
+* `/` → Web1 + Web2 (round-robin)
+* Static files
+* Health checks
+
+Config:
+
+`/etc/nginx/sites-available/cloudops`
+
+Test config:
+
+```bash
+sudo nginx -t
+sudo systemctl restart nginx
+```
+
+Load balancer:
+👉 [http://localhost/](http://localhost/)
+
+---
+
+# 🧭 Systemd Services
+
+| Service                  | Description       |
+| ------------------------ | ----------------- |
+| web1.service             | Flask Web App 1   |
+| web2.service             | Flask Web App 2   |
+| prometheus.service       | Prometheus server |
+| node_exporter.service    | Node exporter     |
+| cloudops-backup.service  | Backup job        |
+| cloudops-cleanup.service | Cleanup job       |
+
+Enable everything:
+
+```bash
+sudo systemctl enable --now web1 web2 prometheus node_exporter cloudops-backup.timer cloudops-cleanup.timer
 ```
 
 ---
 
-# 🏆 What This Project Demonstrates
+# ⏱ Timers
 
-### **Cloud Engineering**
+List active timers:
 
-* S3 storage
-* Reverse proxies
-* Load balancing
-* Network routing
-
-### **DevOps**
-
-* Automation
-* systemd services
-* Infrastructure layout
-* Observability stack
-
-### **SRE**
-
-* Backup + restore reliability
-* Monitoring
-* Alerting
-* Integrity verification
-* Disaster recovery
+```bash
+systemctl list-timers | grep cloudops
+```
 
 ---
 
-# 🚧 Future Enhancements
+# 🔒 .gitignore
 
-* Dockerize entire platform
-* Kubernetes migration
-* Add TLS (Certbot)
-* CI/CD pipeline (GitHub Actions)
-* Terraform IaC
-* Grafana dashboards
+This project excludes:
+
+* MinIO data
+* Binaries
+* Secrets
+* Backups
+* Logs
+* Systemd units
+* Virtual environment
+
+Ensures a clean repository.
 
 ---
 
-# 👨‍💻 Author
+# 🛠 Development Workflow
 
-**Ashwin Saji**
-Cloud | DevOps | SRE Engineer
+Modify code → commit → push.
 
+To update systemd services:
+
+```bash
+sudo systemctl daemon-reload
+sudo systemctl restart <service>
+```
+
+---
+
+# 🆘 Troubleshooting
+
+### Prometheus won’t start?
+
+Delete the data dir:
+
+```bash
+sudo rm -rf /var/lib/prometheus/*
+```
+
+### Node exporter already running?
+
+Find & kill:
+
+```bash
+sudo lsof -i :9100
+sudo kill <PID>
+```
+
+### MinIO bucket missing?
+
+Recreate:
+
+```bash
+mc mb local/uploads
+```
+
+---
+
+# 🙌 Credits
+
+Built by **Ashwin**
+Automated and optimized with **CloudOps Infrastructure Framework
