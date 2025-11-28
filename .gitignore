@@ -1,24 +1,59 @@
+# =======================
 # Python
+# =======================
 venv/
 __pycache__/
 *.pyc
 
-# MinIO storage
+# =======================
+# MinIO (DO NOT TRACK)
+# =======================
 minio-data/
+web1/app/.minio.sys/
+web2/app/.minio.sys/
+**/.minio.sys/
+*.minio.sys/
 
-# Backups
+# =======================
+# Backups and data
+# =======================
 backups/
+logs/
+data/
 *.tar.gz
 
-# Logs
-logs/
-
-# Systemd
-*.service
-
+# =======================
 # Secrets
+# =======================
 *.env
+*.secret
+*.key
+automation/config.py
+
+# =======================
+# Systemd files
+# =======================
+*.service
+*.timer
+
+# =======================
+# Binaries (DO NOT TRACK)
+# =======================
+prometheus/prometheus
+prometheus/promtool
+node_exporter/node_exporter/node_exporter
+
+# =======================
+# Local automation scripts (contain secrets)
+# =======================
 automation/backup.sh
 automation/minio_monitor.sh
-automation/backup.sh
-automation/minio_monitor.sh
+automation/cleanup_backups.sh
+automation/restore.sh
+
+# =======================
+# OS Junk
+# =======================
+.DS_Store
+Thumbs.db
+node_exporter/node_exporter/
