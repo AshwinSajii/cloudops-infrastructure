@@ -1,6 +1,6 @@
 --
 
-# 🚀 CloudOpsComplete
+# 🚀 DevOps Project — Production-Grade Microservices Infrastructure
 
 A fully containerized mini-cloud platform featuring:
 
