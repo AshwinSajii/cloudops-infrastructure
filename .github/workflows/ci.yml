@@ -1,4 +1,4 @@
-name: CI/CD Pipeline
+name: CI Pipeline
 
 on:
   push:
@@ -46,22 +46,5 @@ jobs:
             ${{ env.IMAGE_WEB2 }}:latest
             ${{ env.IMAGE_WEB2 }}:${{ github.sha }}
 
-      - name: Run tests
-        run: |
-          echo "⚠ No tests defined yet. Skipping tests."
-
-  deploy:
-    runs-on: ubuntu-latest
-    needs: build-test-push
-
-    steps:
-      - name: Trigger Ansible Deploy via SSH
-        uses: appleboy/ssh-action@v1.0.3
-        with:
-          host: ${{ secrets.ANSIBLE_HOST }}
-          username: ${{ secrets.ANSIBLE_USER }}
-          key: ${{ secrets.ANSIBLE_SSH_KEY }}
-          script: |
-            cd /opt/ansible
-            git pull
-            ansible-playbook deploy.yml -e "web1_tag=\${GITHUB_SHA} web2_tag=\${GITHUB_SHA}"
+      - name: No tests yet
+        run: echo "Skipping tests for now."
