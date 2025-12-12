@@ -1,0 +1,36 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Gallery</title>
+    <link rel="stylesheet" href="/static/style.css">
+</head>
+<body>
+
+<div class="container">
+    <h1>Your Files</h1>
+
+    {% if objects %}
+    <div class="grid">
+        {% for obj in objects %}
+        <div class="card">
+            <p class="filename">{{ obj.Key }}</p>
+
+            <div class="actions">
+                <a href="{{ url_for('download', filename=obj.Key) }}" class="btn primary">Download</a>
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+    {% else %}
+    <p>No files uploaded yet.</p>
+    {% endif %}
+
+    <div class="links">
+        <a href="/upload" class="btn secondary">Upload More</a>
+        <a href="/logout" class="btn danger">Logout</a>
+    </div>
+</div>
+
+</body>
+</html>
