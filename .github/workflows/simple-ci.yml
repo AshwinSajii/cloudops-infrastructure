@@ -1,0 +1,39 @@
+name: Simple CI Pipeline
+
+on:
+  push:
+    branches: [ "main" ]
+  pull_request:
+
+jobs:
+  simple-ci:
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Checkout repository
+      uses: actions/checkout@v3
+
+    - name: Set up Python
+      uses: actions/setup-python@v4
+      with:
+        python-version: '3.11'
+
+    # ---- Lint Python Syntax ----
+    - name: Check Python Syntax - web1
+      run: |
+        python -m py_compile web1/app/app.py
+
+    - name: Check Python Syntax - web2
+      run: |
+        python -m py_compile web2/app/app.py
+
+    # ---- Validate Dockerfiles ----
+    - name: Validate Dockerfile web1
+      run: docker build --no-cache -t test-web1 ./web1
+
+    - name: Validate Dockerfile web2
+      run: docker build --no-cache -t test-web2 ./web2
+
+    # ---- Validate Docker Compose ----
+    - name: Validate docker-compose.yml
+      run: docker compose config

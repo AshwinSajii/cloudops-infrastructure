@@ -6,8 +6,9 @@ COPY requirements.txt .
 
 RUN pip install --no-cache-dir -r requirements.txt
 
-COPY app/ app/
+# FORCE COPY USING ABSOLUTE PATH
+COPY ./app /app/app
 
-EXPOSE 5001
+EXPOSE 5000
 
 CMD ["python", "app/app.py"]
