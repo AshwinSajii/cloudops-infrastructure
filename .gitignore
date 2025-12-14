@@ -12,3 +12,6 @@ minio-data/
 
 # OS
 .DS_Store
+
+backups/
+
